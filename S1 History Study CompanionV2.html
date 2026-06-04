@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-HK">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>S1 History Study Companion (Topics 3 & 4) ｜ 智能朗读版（完整挑战擂台）</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Lexend -->
+    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700;800;900&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        /* 所有原始样式保持不变 */
+        body {
+            font-family: 'Lexend', 'Noto Sans TC', sans-serif;
+            background-color: #faf6ee;
+            color: #1e293b;
+            letter-spacing: 0.05em;
+            line-height: 1.8;
+        }
+        .cartoon-card {
+            background-color: #ffffff;
+            border: 4px solid #1e293b;
+            box-shadow: 6px 6px 0px #1e293b;
+            border-radius: 20px;
+            transition: all 0.15s ease-in-out;
+            position: relative;
+        }
+        .cartoon-card:hover {
+            transform: translate(-2px, -2px);
+            box-shadow: 8px 8px 0px #1e293b;
+        }
+        .cartoon-btn {
+            border: 3px solid #1e293b;
+            box-shadow: 4px 4px 0px #1e293b;
+            transition: all 0.1s ease;
+        }
+        .cartoon-btn:active {
+            transform: translate(2px, 2px);
+            box-shadow: 2px 2px 0px #1e293b;
+        }
+        .active-tab-btn {
+            background-color: #722f37 !important;
+            color: #ffffff !important;
+            border: 3px solid #1e293b !important;
+            box-shadow: 4px 4px 0px #1e293b !important;
+        }
+        .note-bold {
+            font-weight: 900;
+            color: #722f37;
+            background-color: #fef08a;
+            padding: 2px 6px;
+            border-radius: 6px;
+            border: 2px solid #eab308;
+            display: inline-block;
+        }
+        .mask-element {
+            filter: blur(5.5px);
+            transition: filter 0.3s ease;
+            background-color: #cbd5e1;
+            color: #cbd5e1;
+            border-radius: 6px;
+            padding: 0px 5px;
+            font-weight: 900;
+        }
+        .mask-element.revealed {
+            filter: blur(0px) !important;
+            background-color: #fef08a !important; 
+            color: #722f37 !important;
+            font-weight: 900 !important;
+            border: 2px solid #eab308;
+        }
+        .mindmap-node {
+            transition: all 0.2s ease-in-out;
+            cursor: pointer;
+        }
+        .mindmap-node:hover {
+            transform: scale(1.06);
+            filter: brightness(1.05);
+        }
+        .show-bilingual .lang-en, .show-bilingual .lang-zh { display: block !important; }
+        .show-zh-only .lang-en { display: none !important; }
+        .show-zh-only .lang-zh { display: block !important; }
+        .show-en-only .lang-zh { display: none !important; }
+        .show-en-only .lang-en { display: block !important; }
+        .show-bilingual span.lang-en, .show-bilingual span.lang-zh { display: inline-block !important; }
+        .show-zh-only span.lang-en { display: none !important; }
+        .show-zh-only span.lang-zh { display: inline-block !important; }
+        .show-en-only span.lang-zh { display: none !important; }
+        .show-en-only span.lang-en { display: inline-block !important; }
+        ::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #faf6ee;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #b08d57;
+            border: 3px solid #1e293b;
+            border-radius: 6px;
+        }
+        /* 新增朗读按钮高亮样式 */
+        .speak-toggle-btn.speaking {
+            background-color: #16a34a !important;
+            color: white !important;
+            border-color: #14532d !important;
+            box-shadow: 2px 2px 0px #14532d !important;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col p-3 md:p-6 show-bilingual">
+
+    <!-- 头部：完全保持原样，仅增加全局停止按钮（可选），但原有布局不变 -->
+    <header class="max-w-6xl w-full mx-auto mb-8 cartoon-card p-4 md:p-6 flex flex-col md:flex-row items-center justify-between gap-4">
+        <div class="flex items-center gap-4">
+            <span class="text-5xl animate-bounce">🏛️</span>
+            <div>
+                <h1 class="text-2xl md:text-4xl font-black text-slate-900 tracking-tight">中一歷史科溫習神器</h1>
+                <p class="text-xs text-slate-500 font-bold uppercase tracking-wider">S1 History Visual & Dynamic Study Companion</p>
+            </div>
+        </div>
+        <div class="flex flex-wrap items-center gap-3">
+            <!-- Language Mode Controller -->
+            <div class="bg-slate-200 border-3 border-slate-900 p-1 rounded-2xl flex gap-1 shadow-[3px_3px_0px_rgba(30,41,59,1)]">
+                <button onclick="setLanguageMode('bilingual')" id="lang-btn-bilingual" class="text-xs font-black px-3 py-2 rounded-xl transition-all bg-white text-slate-900 border-2 border-slate-900">雙語對照</button>
+                <button onclick="setLanguageMode('zh')" id="lang-btn-zh" class="text-xs font-black px-3 py-2 rounded-xl transition-all text-slate-600 hover:text-slate-900">中文版</button>
+                <button onclick="setLanguageMode('en')" id="lang-btn-en" class="text-xs font-black px-3 py-2 rounded-xl transition-all text-slate-600 hover:text-slate-900">English</button>
+            </div>
+            <!-- Brain Break Timer Widget -->
+            <div class="bg-emerald-100 border-3 border-slate-900 p-2 px-3 rounded-2xl flex items-center gap-3 shadow-[3px_3px_0px_rgba(30,41,59,1)] font-bold">
+                <div class="text-left leading-tight">
+                    <span class="font-extrabold text-xs text-emerald-950 block">🧠 輕鬆小休時間!</span>
+                    <span class="text-[10px] text-emerald-800 block">30s active refresh!</span>
+                </div>
+                <button id="breakTimerBtn" onclick="toggleBreakTimer()" class="cartoon-btn bg-emerald-400 hover:bg-emerald-50 text-slate-900 font-bold text-xs px-3 py-1 rounded-lg">Start</button>
+                <span id="timerDisplay" class="font-mono text-sm font-black text-emerald-950 hidden">30s</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Navigation Tabs -->
+    <nav class="flex flex-wrap justify-center gap-3 max-w-6xl w-full mx-auto mb-8">
+        <button onclick="switchTab('study')" id="tab-study-btn" class="active-tab-btn cartoon-btn px-6 py-3.5 rounded-2xl font-black text-slate-900 bg-white flex items-center gap-2"><i class="fa-solid fa-book-open"></i> <span>學習基地 Study Hub</span></button>
+        <button onclick="switchTab('recitation')" id="tab-recitation-btn" class="cartoon-btn px-6 py-3.5 rounded-2xl font-black text-slate-900 bg-white flex items-center gap-2"><i class="fa-solid fa-brain"></i> <span>背誦秘笈 Recitation</span></button>
+        <button onclick="switchTab('quiz')" id="tab-quiz-btn" class="cartoon-btn px-6 py-3.5 rounded-2xl font-black text-slate-900 bg-white flex items-center gap-2"><i class="fa-solid fa-gamepad"></i> <span>挑戰擂台 Quiz Room</span></button>
+    </nav>
+
+    <main class="max-w-6xl w-full mx-auto flex-grow">
+
+        <!-- ============================== TAB 1: STUDY HUB ============================== -->
+        <section id="tab-study-content" class="block space-y-12">
+            
+            <!-- SECTION I: COURSE MIND MAPS (原样保留) -->
+            <div class="cartoon-card p-4 md:p-6 bg-[#fdf2e9]">
+                <div class="text-center mb-6">
+                    <h2 class="text-2xl md:text-3xl font-black text-slate-900">🌿 Visual Syllabus Map / 課程概念地圖</h2>
+                    <p class="text-xs text-slate-500 font-bold mt-1">Tap a node to unlock core points with pronunciations! 點選下方節點，即可閱讀該考點並聽取發音！</p>
+                </div>
+                <div class="w-full bg-white rounded-2xl border-4 border-slate-900 p-4 overflow-x-auto shadow-[4px_4px_0px_rgba(30,41,59,1)]">
+                    <svg viewBox="0 0 1000 380" class="w-full min-w-[850px] h-auto">
+                        <g stroke="#1e293b" stroke-width="4">
+                            <line x1="500" y1="190" x2="250" y2="100" /><line x1="250" y1="100" x2="90" y2="40" /><line x1="250" y1="100" x2="90" y2="150" /><line x1="250" y1="100" x2="90" y2="260" />
+                            <line x1="500" y1="190" x2="750" y2="100" /><line x1="750" y1="100" x2="910" y2="40" /><line x1="750" y1="100" x2="910" y2="150" /><line x1="750" y1="100" x2="910" y2="260" />
+                        </g>
+                        <g class="mindmap-node" onclick="handleMapClick('core', 'S1 History Study Hub', '歡迎來到中一歷史科學習基地！今天我們將複習：早期香港的歷史文化 與 伊斯蘭文明的興起！')"><rect x="400" y="150" width="200" height="80" rx="20" fill="#722f37" stroke="#1e293b" stroke-width="4" /><text x="500" y="195" fill="#fff" font-weight="extrabold" font-size="16" text-anchor="middle">S1 HISTORY</text><text x="500" y="215" fill="#fcd34d" font-weight="bold" font-size="11" text-anchor="middle">Click Nodes 👆</text></g>
+                        <g class="mindmap-node" onclick="handleMapClick('t4', 'Topic 4: Early Hong Kong', '早期香港地區的歷史、文化、習俗。學習四大民系、非物質文化遺產和長洲太平清醮！')"><rect x="150" y="70" width="200" height="60" rx="15" fill="#38bdf8" stroke="#1e293b" stroke-width="3" /><text x="250" y="105" fill="#1e293b" font-weight="extrabold" font-size="13" text-anchor="middle">🏛️ Early HK (Topic 4)</text></g>
+                        <g class="mindmap-node" onclick="handleMapClick('t4_groups', 'The Four Settlers & Five Clans', '早期香港有四大系統居民。其中廣府人南遷於宋朝，被稱為本地人，以耕種為生，新界五大姓族為鄧、文、廖、侯、彭。')"><circle cx="90" cy="40" r="30" fill="#bae6fd" stroke="#1e293b" stroke-width="3" /><text x="90" y="44" fill="#0f172a" font-weight="bold" font-size="9" text-anchor="middle">👥 Settlers</text></g>
+                        <g class="mindmap-node" onclick="handleMapClick('t4_ich', 'Intangible Cultural Heritage', '非物質文化遺產包括五大範疇。長洲太平清醮、大坑舞火龍、香港潮人盂蘭勝會、大澳端午龍舟遊涌均屬於「社會實踐、儀式、節慶活動」範疇。')"><circle cx="90" cy="150" r="30" fill="#bae6fd" stroke="#1e293b" stroke-width="3" /><text x="90" y="154" fill="#0f172a" font-weight="bold" font-size="9" text-anchor="middle">🎭 ICH</text></g>
+                        <g class="mindmap-node" onclick="handleMapClick('t4_bun', 'Jiao Festival (Origins & 5 Keys)', '長洲太平清醮正日定於農曆四月初八佛誕公眾假期。起源於遏止疫症蔓延。五大習俗特色：會場佈置、祭祀活動、飄色會景巡遊、祭幽儀式、搶包山。')"><circle cx="90" cy="260" r="30" fill="#bae6fd" stroke="#1e293b" stroke-width="3" /><text x="90" y="264" fill="#0f172a" font-weight="bold" font-size="9" text-anchor="middle">🥯 Bun Fest</text></g>
+                        <g class="mindmap-node" onclick="handleMapClick('t3', 'Topic 3: Islamic Civilisation', '伊斯蘭文明的興起與中古時代歐亞的文化交流。包含三大宗教、穆罕默德生平與伊斯蘭基本教義。')"><rect x="650" y="70" width="200" height="60" rx="15" fill="#f87171" stroke="#1e293b" stroke-width="3" /><text x="750" y="105" fill="#1e293b" font-weight="extrabold" font-size="13" text-anchor="middle">🕌 Islam (Topic 3)</text></g>
+                        <g class="mindmap-node" onclick="handleMapClick('t3_founder', 'Prophet Muhammad', '穆罕默德生平傳教與經典：6世紀末出生於麥加。7世紀初在阿拉伯半島傳教。622年遷徙至麥地那，630年重返麥加清除禁寺內的偶像。《古蘭經》與《聖訓》是重要經典。')"><circle cx="910" cy="40" r="30" fill="#fecaca" stroke="#1e293b" stroke-width="3" /><text x="910" y="44" fill="#0f172a" font-weight="bold" font-size="9" text-anchor="middle">👤 Prophet</text></g>
+                        <g class="mindmap-node" onclick="handleMapClick('t3_teachings', 'Six Faiths & Five Pillars', '伊斯蘭教教義為「六信五功」。六信為信真主、信天使、信經典、信先知、信末日、信前定。五功為唸功、拜功、課功、齋功、朝功。並有嚴格飲食與穿戴頭巾規範。')"><circle cx="910" cy="150" r="30" fill="#fecaca" stroke="#1e293b" stroke-width="3" /><text x="910" y="154" fill="#0f172a" font-weight="bold" font-size="9" text-anchor="middle">🖐️ Teachings</text></g>
+                        <g class="mindmap-node" onclick="handleMapClick('t3_achieve', 'Koran & One Thousand Nights', '中世紀伊斯蘭文化成就：古蘭經（阿拉伯字母寫成）普及文字；天方夜譚民間故事影響深遠。')"><circle cx="910" cy="260" r="30" fill="#fecaca" stroke="#1e293b" stroke-width="3" /><text x="910" y="264" fill="#0f172a" font-weight="bold" font-size="9" text-anchor="middle">🖋️ Culture</text></g>
+                    </svg>
+                </div>
+                <div id="mindmap-dashboard" class="mt-4 p-4 bg-amber-100 border-3 border-slate-900 rounded-2xl flex items-center justify-between gap-4">
+                    <div class="flex items-center gap-3"><span class="text-4xl">💡</span><div><h4 id="dash-title" class="font-extrabold text-slate-900">Course Map Navigator / 課程地圖導航</h4><p id="dash-body" class="text-sm text-slate-700 font-medium">Click on any node above to start learning! 點擊上方節點開啟學習，幫助建立右腦知識體系。</p></div></div>
+                    <div class="flex gap-2"><button onclick="readDashboardText('zh-HK')" class="bg-indigo-200 border-2 border-slate-900 text-xs font-black py-1.5 px-3 rounded-lg hover:bg-indigo-300 transition-all">🔊 粵語</button><button onclick="readDashboardText('en-US')" class="bg-indigo-200 border-2 border-slate-900 text-xs font-black py-1.5 px-3 rounded-lg hover:bg-indigo-300 transition-all">🔊 Read</button></div>
+                </div>
+            </div>
+
+            <!-- SECTION II: TOPIC 4 - EARLY HONG KONG (为每个Part独立添加朗读按钮) -->
+            <div id="topic4-hub" class="cartoon-card p-6 border-sky-400 bg-sky-50/10 space-y-8">
+                <div class="border-b-4 border-slate-900 pb-3 flex justify-between items-center flex-wrap gap-2">
+                    <h3 class="text-2xl md:text-3xl font-black text-slate-900 flex items-center gap-2"><span>🏛️</span> Topic 4: Early Hong Kong Region / 早期香港地區的歷史、文化與傳承</h3>
+                </div>
+                <!-- Part 1: The Four Settlers -->
+                <div class="part-block p-5 bg-teal-50 border-3 border-slate-900 rounded-2xl space-y-4" data-part-id="topic4_part1">
+                    <div class="flex justify-between items-start flex-wrap gap-2">
+                        <span class="bg-teal-200 text-teal-950 font-black text-xs px-3 py-1 rounded-full uppercase border-2 border-slate-900">Part 1: The Four Settlers / 四大民系</span>
+                        <div class="flex gap-2">
+                            <button class="speak-toggle-btn cartoon-btn bg-white text-xs font-black px-3 py-1 rounded-lg" data-target="topic4_part1" data-lang="en-US">🔊 English (Read/Stop)</button>
+                            <button class="speak-toggle-btn cartoon-btn bg-white text-xs font-black px-3 py-1 rounded-lg" data-target="topic4_part1" data-lang="zh-HK">🔊 粵語 (朗讀/停止)</button>
+                        </div>
+                    </div>
+                    <div class="space-y-2">
+                        <div class="lang-en text-slate-800 text-sm md:text-base leading-relaxed font-bold">Most of the early settlers in Hong Kong belonged to the four major groups: <span class="note-bold">the Cantonese</span>, the Hakkas, the Fuklos and the boat people. Some of them could possibly have settled along the coast in Hong Kong since the early days, while some of them came from the mainland.</div>
+                        <div class="lang-zh text-slate-800 text-sm md:text-base leading-relaxed font-bold">今日香港大部分居民的來源，可以分為四大系統，即<span class="note-bold">廣府人</span>、客家人、福佬人和水上人。這四大民系，有的可能早就生活在香港沿海地區，有的則是從內地遷徙而來。</div>
+                    </div>
+                    <div class="bg-white p-4 rounded-xl border-2 border-slate-900 shadow-[4px_4px_0px_rgba(30,41,59,1)]">
+                        <h4 class="font-black text-slate-900 text-base mb-2 flex items-center gap-2">⭐ NT Five Great Clans / 新界五大姓族</h4>
+                        <div class="space-y-3 text-xs md:text-sm font-bold">
+                            <div class="lang-en text-slate-600"><strong>Origins:</strong> The ancestors of the Cantonese came from central and northern China. They first moved into Guangdong during the <span class="note-bold">Han dynasty</span>. Later, they started coming to Hong Kong from the <span class="note-bold">Song dynasty</span>.<br><strong>Identity:</strong> Since they settled in Hong Kong a long time ago, they were also called the <span class="note-bold">Puntis</span>, which means 'local people'. They mainly spoke <span class="note-bold">Cantonese</span>, and most of them were <span class="note-bold">farmers</span>.<br><strong>Five Clans:</strong> <span class="note-bold">Tang</span>, <span class="note-bold">Man</span>, <span class="note-bold">Liu</span>, <span class="note-bold">Hau</span> and <span class="note-bold">Pang</span>. All of them are Cantonese, speak Cantonese, and settled in HK since the Song dynasty.</div>
+                            <div class="lang-zh text-slate-700 font-bold border-t pt-2 md:border-t-0 md:pt-0"><strong>起源與背景：</strong> 廣府人的祖先原來是中原人士，漢朝以後陸續南遷至廣州府各地，宋朝以後又逐批移民到香港地區。<br><strong>稱呼與工作：</strong> 由於他們早就遷居於香港，所以習慣上又稱為「<span class="note-bold">本地人</span>」（Puntis）。他們操粵語（廣東話），在古代以耕種為生。<br><strong>新界五大姓族：</strong> 包括<span class="note-bold">鄧、文、廖、侯、彭</span>五姓族，他們均屬於廣府人，操粵語，而且都是宋朝以來先後從中國內地遷居於香港的。</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Part 2: What is ICH -->
+                <div class="part-block p-5 bg-purple-50 border-3 border-slate-900 rounded-2xl space-y-4" data-part-id="topic4_part2">
+                    <div class="flex justify-between items-start flex-wrap gap-2">
+                        <span class="bg-purple-200 text-purple-950 font-black text-xs px-3 py-1 rounded-full uppercase border-2 border-slate-900">Part 2: What is Intangible Cultural Heritage? / 甚麼是非物質文化遺產？</span>
+                        <div class="flex gap-2">
+                            <button class="speak-toggle-btn cartoon-btn bg-white text-xs font-black px-3 py-1 rounded-lg" data-target="topic4_part2" data-lang="en-US">🔊 English (Read/Stop)</button>
+                            <button class="speak-toggle-btn cartoon-btn bg-white text-xs font-black px-3 py-1 rounded-lg" data-target="topic4_part2" data-lang="zh-HK">🔊 粵語 (朗讀/停止)</button>
+                        </div>
+                    </div>
+                    <div class="space-y-2 font-bold">
+                        <div class="lang-en text-slate-800 text-sm leading-relaxed"><span class="note-bold">Cultural heritage</span> refers to traditions kept by a local community. <span class="note-bold">Intangible cultural heritage</span> (ICH) includes traditional customs, festivals, songs, techniques, etc.</div>
+                        <div class="lang-zh text-slate-800 text-sm leading-relaxed">文化遺產，又稱為文化承傳，是指一個本地社群保存下來的傳統。無形的文化遺產稱為「<span class="note-bold">非物質文化遺產</span>」，包括傳統習俗和節日、歌曲、工藝技術等。</div>
+                    </div>
+                    <h4 class="font-extrabold text-slate-900 text-sm mt-3 flex items-center gap-1">📋 Five Core Domains of ICH / 非物質文化遺產五大範疇：</h4>
+                    <div class="grid grid-cols-2 md:grid-cols-5 gap-3 text-center text-[11px] md:text-xs font-black">
+                        <div class="bg-white p-3 rounded-lg border-2 border-slate-900"><span class="text-xl">🗣️</span><p class="mt-1">oral traditions & expressions</p><p class="text-purple-700 mt-1 font-extrabold">口頭傳統和表現形式</p></div>
+                        <div class="bg-white p-3 rounded-lg border-2 border-slate-900"><span class="text-xl">🥮</span><p class="mt-1">traditional craftsmanship</p><p class="text-purple-700 mt-1 font-extrabold">傳統手工藝</p></div>
+                        <div class="bg-white p-3 rounded-lg border-2 border-slate-900"><span class="text-xl">🍵</span><p class="mt-1">knowledge concerning nature & universe</p><p class="text-purple-700 mt-1 font-extrabold">有關自然界和宇宙的知識和實踐</p></div>
+                        <div class="bg-white p-3 rounded-lg border-2 border-slate-900"><span class="text-xl">🎭</span><p class="mt-1">performing arts</p><p class="text-purple-700 mt-1 font-extrabold">表演藝術</p></div>
+                        <div class="bg-white p-3 rounded-lg border-2 border-slate-900"><span class="text-xl">📅</span><p class="mt-1">social practices, rituals & festive events</p><p class="text-purple-700 mt-1 font-extrabold">社會實踐、儀式、節慶活動</p></div>
+                    </div>
+                    <div class="bg-amber-100 p-4 rounded-xl border-2 border-slate-900 shadow-[4px_4px_0px_rgba(30,41,59,1)]">
+                        <h4 class="font-black text-amber-950 text-sm mb-1">⭐ Third Batch of National List / 第三批國家級名錄</h4>
+                        <p class="lang-en text-xs text-slate-800 font-bold">The following four local events belong to the category of <span class="note-bold">social practices, rituals and festive events</span>:</p>
+                        <p class="lang-zh text-xs text-slate-800 font-bold">香港以下四項本地節慶活動被列入國家級名錄，全部屬於「<span class="note-bold">社會實踐、儀式、節慶活動</span>」類別：</p>
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-2 mt-3 font-bold text-center text-xs">
+                            <div class="bg-white border-2 border-slate-900 p-2.5 rounded-lg shadow-sm"><span class="note-bold">Cheung Chau Jiao Festival</span><br><span class="text-slate-500 font-black">長洲太平清醮</span></div>
+                            <div class="bg-white border-2 border-slate-900 p-2.5 rounded-lg shadow-sm"><span class="note-bold">Tai Hang Fire Dragon Dance</span><br><span class="text-slate-500 font-black">大坑舞火龍</span></div>
+                            <div class="bg-white border-2 border-slate-900 p-2.5 rounded-lg shadow-sm"><span class="note-bold">Chiu Chow Yu Lan Ghost Festival</span><br><span class="text-slate-500 font-black">香港潮人盂蘭勝會</span></div>
+                            <div class="bg-white border-2 border-slate-900 p-2.5 rounded-lg shadow-sm"><span class="note-bold">Tai O Dragon Boat Water Parade</span><br><span class="text-slate-500 font-black">大澳端午龍舟遊涌</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Part 3: Cheung Chau Jiao Festival -->
+                <div class="part-block p-5 bg-amber-50 border-3 border-slate-900 rounded-2xl space-y-4" data-part-id="topic4_part3">
+                    <div class="flex justify-between items-start flex-wrap gap-2">
+                        <span class="bg-amber-200 text-amber-950 font-black text-xs px-3 py-1 rounded-full uppercase border-2 border-slate-900">Part 3: Cheung Chau Jiao (Bun) Festival / 長洲太平清醮</span>
+                        <div class="flex gap-2">
+                            <button class="speak-toggle-btn cartoon-btn bg-white text-xs font-black px-3 py-1 rounded-lg" data-target="topic4_part3" data-lang="en-US">🔊 English (Read/Stop)</button>
+                            <button class="speak-toggle-btn cartoon-btn bg-white text-xs font-black px-3 py-1 rounded-lg" data-target="topic4_part3" data-lang="zh-HK">🔊 粵語 (朗讀/停止)</button>
+                        </div>
+                    </div>
+                    <div class="p-4 bg-yellow-100 border-2 border-slate-900 rounded-xl"><h4 class="font-extrabold text-yellow-950 text-sm mb-1">📅 Specific Date Milestone / 舉辦日期之重要考點</h4><p class="lang-en text-xs text-slate-800 leading-relaxed font-bold"><span class="note-bold">Since 2001, the day of the Cheung Chau Jiao Festival has been fixed on the 8th day of the fourth lunar month, which is also the Birthday of the Buddha holiday.</span></p><p class="lang-zh text-xs text-slate-800 leading-relaxed font-bold"><span class="note-bold">由2001年起，長洲太平清醮的正日被定為農曆四月初八（即佛誕公眾假期）。</span></p></div>
+                    <div class="bg-white p-4 rounded-xl border-2 border-slate-900"><h4 class="font-black text-slate-900 text-sm border-b-2 pb-2 mb-2">🌿 Jiao Festival Origins & 5 Keys / 習俗源起與五大特色</h4><div class="space-y-4 text-xs md:text-sm font-bold"><div class="border-b pb-2"><span class="bg-slate-900 text-white font-black px-2 py-0.5 rounded text-[10px]">Origins / 起源</span><p class="lang-en text-slate-700 mt-1">To stop a devastating plague, residents set up altars to pray to <span class="note-bold">Pak Tai</span> to end disasters.</p><p class="lang-zh text-slate-800 font-bold mt-1">為遏止疫症蔓延，島民設立祭壇向<span class="note-bold">北帝</span>祈求消災解難。</p></div><div class="space-y-4"><div><h5 class="font-black text-slate-900">1. <span class="note-bold">Decoration of venue</span> / <span class="note-bold">會場佈置</span></h5><p class="lang-en text-slate-600 mt-1">Setting up grand altars (for deities to overlook), erecting three giant bamboo bun towers covered with thousands of lucky "Ping On" buns, and displaying large colorful paper deity statues at the ritual venue.</p><p class="lang-zh text-slate-700 font-bold mt-1">在打醮會場，主辦當局設立了多個大型神棚（供奉神祇），並設立三座掛滿了幾千個「平安包」的巨大包山。此外，會場內亦會展示巨大的彩色紙紮神像。</p></div><div><h5 class="font-black text-slate-900">2. <span class="note-bold">worship activities</span> / <span class="note-bold">祭祀活動</span></h5><p class="lang-en text-slate-600 mt-1">Conducting elaborate Taoist rituals, presenting animal and fruit food offerings to Pak Tai, and strictly observing a 3-day vegetarian fast (vegetarian eating) island-wide to purify the community.</p><p class="lang-zh text-slate-700 font-bold mt-1">大會會舉行道教祭祀儀式、向北帝獻祭（如原隻豬和羊等祭品）。島上所有居民必須一連三天吃素，這是齋戒期，全島店舖亦不會提供肉食。</p></div><div><h5 class="font-black text-slate-900">3. <span class="note-bold">carnival parade</span> / <span class="note-bold">飄色會景巡遊</span></h5><p class="lang-en text-slate-600 mt-1">The vibrant Piu Sik (Floating Colors) Parade. Young children dress up as popular mythical deities or modern political and social figures, standing "suspended" high up in the air on hidden metal frames carried through the streets.</p><p class="lang-zh text-slate-700 font-bold mt-1">極具特色且熱鬧非凡的飄色巡遊。年幼的小朋友會裝扮成傳統神話的神仙、或現代社會的時事焦點人物，站在一根幼鐵梗上、離地半空「懸空」在街上巡遊。</p></div><div><h5 class="font-black text-slate-900">4. <span class="note-bold">spirit assuaging ceremony</span> / <span class="note-bold">祭幽儀式</span></h5><p class="lang-en text-slate-600 mt-1">Performing traditional rituals to pacify and feed wandering ghosts, culminating in the burning of a massive paper-crafted statue of the Ghost King (Da Shi Wang) to safely guide spirits back to the spiritual realm.</p><p class="lang-zh text-slate-700 font-bold mt-1">舉行盛大儀式來超渡、安撫與拜祭四方的孤魂野鬼。儀式的最高潮是焚燒巨大的紙紮大士王（鬼王），象徵將所有鬼神送離長洲、帶走疾病與噩運。</p></div><div><h5 class="font-black text-slate-900">5. <span class="note-bold">bun scrambling</span> / <span class="note-bold">搶包山</span></h5><p class="lang-en text-slate-600 mt-1 font-bold">The signature grand finale event of climbing high bamboo bun towers at midnight to gather lucky Ping On buns.</p><p class="lang-zh text-slate-700 font-bold mt-1">在打醮的最後一晚午夜十二點，大批參賽者會攀上高聳的包山，爭相奪取平安包，搶得越多代表越幸運。</p></div></div></div></div>
+                    <h4 class="font-black text-slate-950 text-sm mt-4 flex items-center gap-1.5">📊 Bun Scrambling: Then vs. Now / 搶包山活動的今與昔：</h4>
+                    <div class="overflow-x-auto border-3 border-slate-900 rounded-xl shadow-[4px_4px_0px_rgba(30,41,59,1)]"><table class="w-full text-xs md:text-sm text-left bg-white overflow-hidden"><thead class="bg-slate-900 text-white font-bold"><tr><th class="p-3 border-r border-slate-700">對比項目 / Items</th><th class="p-3 border-r border-slate-700">傳統的搶包山 / Traditional Scrambling</th><th class="p-3">包山嘉年華 / Modern Bun Carnival</th></tr></thead><tbody class="divide-y divide-slate-900 font-bold text-slate-800"><tr><td class="p-3 bg-slate-100 border-r border-slate-900 font-black">活動性質 / Nature</td><td class="p-3 border-r border-slate-200 text-rose-800"><span class="lang-zh"><span class="note-bold">祭祀祈福</span></span><span class="lang-en text-[11px] font-normal text-slate-500">Religious & Ritual</span></td><td class="p-3 text-emerald-800"><span class="lang-zh"><span class="note-bold">競技比賽</span></span><span class="lang-en text-[11px] font-normal text-slate-500">Sports & Competition</span></td></tr><tr><td class="p-3 bg-slate-100 border-r border-slate-900 font-black">參加者 / Participants</td><td class="p-3 border-r border-slate-200"><span class="lang-zh"><span class="note-bold">長洲居民</span></span><span class="lang-en text-[11px] font-normal text-slate-500">Local residents only</span></td><td class="p-3"><span class="lang-zh"><span class="note-bold">任何能力達標準的人士</span></span><span class="lang-en text-[11px] font-normal text-slate-500">Anyone who meets standard</span></td></tr><tr><td class="p-3 bg-slate-100 border-r border-slate-900 font-black">平安包製作方式 / Buns</td><td class="p-3 border-r border-slate-200"><span class="lang-zh"><span class="note-bold">以麵粉、砂糖等材料製成</span></span><span class="lang-en text-[11px] font-normal text-slate-500">Real flour buns</span></td><td class="p-3"><span class="lang-zh"><span class="note-bold">塑膠造的仿真包</span></span><span class="lang-en text-[11px] font-normal text-slate-500">Plastic imitation buns</span></td></tr></tbody></table></div>
+                </div>
+            </div>
+
+            <hr class="border-4 border-slate-900 border-dashed rounded-full">
+
+            <!-- SECTION III: TOPIC 3 - ISLAMIC CIVILISATION (同样分割 Part) -->
+            <div id="topic3-hub" class="cartoon-card p-6 border-red-400 bg-red-50/10 space-y-8">
+                <div class="border-b-4 border-slate-900 pb-3 flex justify-between items-center flex-wrap gap-2"><h3 class="text-2xl md:text-3xl font-black text-slate-900 flex items-center gap-2"><span>🕌</span> Topic 3: Rise of Islamic Civilisation / 伊斯蘭文明的興起與中古歐亞交流</h3></div>
+                <!-- Part 1 -->
+                <div class="part-block p-4 bg-orange-100 border-3 border-slate-900 rounded-2xl space-y-3" data-part-id="topic3_part1">
+                    <div class="flex justify-between items-start flex-wrap gap-2"><span class="bg-orange-200 text-orange-950 font-black text-xs px-3 py-1 rounded-full uppercase border-2 border-slate-900">Part 1: Three Major Religions / 三大主要宗教</span><div class="flex gap-2"><button class="speak-toggle-btn cartoon-btn bg-white text-xs font-black px-3 py-1 rounded-lg" data-target="topic3_part1" data-lang="en-US">🔊 English (Read/Stop)</button><button class="speak-toggle-btn cartoon-btn bg-white text-xs font-black px-3 py-1 rounded-lg" data-target="topic3_part1" data-lang="zh-HK">🔊 粵語 (朗讀/停止)</button></div></div>
+                    <div id="topic3-part1-block" class="mt-3 leading-relaxed"><p class="lang-en text-sm text-slate-800 font-bold">Nowadays, there are three most influential religions, including <span class="note-bold">Buddhism</span>, <span class="note-bold">Christianity</span> and <span class="note-bold">Islam</span>. Islam began to spread in early <span class="note-bold">AD 7th century</span> in the <span class="note-bold">Arabian Peninsula</span> in West Asia. It has developed into the second greatest religion in the world, next only to Christianity. There are almost <span class="note-bold">two billion</span> followers of Islam, making up about <span class="note-bold">one fifth</span> of the world's total population.</p><p class="lang-zh text-sm text-slate-800 font-bold">現今世界影響最大的宗教有三個，包括<span class="note-bold">佛教</span>、<span class="note-bold">基督宗教</span>和<span class="note-bold">伊斯蘭教</span>。在上述三大宗教當中，伊斯蘭教在<span class="note-bold">公元7世紀前期</span>於西亞的<span class="note-bold">阿拉伯半島</span>開始傳播，發展至今已成為僅次於基督宗教的世界第二大宗教，信徒數目接近<span class="note-bold">二十億</span>，佔世界總人口超過<span class="note-bold">五分之一</span>。</p></div>
+                </div>
+                <!-- Part 2 -->
+                <div class="part-block p-5 bg-slate-100 border-3 border-slate-900 rounded-2xl space-y-4" data-part-id="topic3_part2">
+                    <div class="flex justify-between items-start flex-wrap gap-2"><span class="bg-slate-300 text-slate-800 font-black text-xs px-3 py-1 rounded-full uppercase border-2 border-slate-900">Part 2: Life of Prophet Muhammad / 穆罕默德的傳教生平</span><div class="flex gap-2"><button class="speak-toggle-btn cartoon-btn bg-white text-xs font-black px-3 py-1 rounded-lg" data-target="topic3_part2" data-lang="en-US">🔊 English (Read/Stop)</button><button class="speak-toggle-btn cartoon-btn bg-white text-xs font-black px-3 py-1 rounded-lg" data-target="topic3_part2" data-lang="zh-HK">🔊 粵語 (朗讀/停止)</button></div></div>
+                    <div id="topic3-part2-block" class="mt-4 space-y-4"><div class="lang-en text-xs md:text-sm text-slate-700 leading-relaxed space-y-3 font-bold"><p>In <span class="note-bold">AD 630</span>, Muhammad led his army from Medina to retake Mecca, wiped out the idols in the Kaaba, and built a mosque around the Kaaba, called the <span class="note-bold">Forbidden Mosque</span>. Since then, Mecca has become the most important holy city of Islam.</p><p>After Muhammad retook Mecca, most Arabian tribes converted to Islam, and the Arabian Peninsula was unified. In <span class="note-bold">AD 632</span>, Muhammad died in Medina.</p></div><div class="lang-zh text-xs md:text-sm text-slate-800 leading-relaxed font-bold space-y-3 border-t pt-2 md:border-t-0 md:pt-0"><p><span class="note-bold">公元630年</span>，穆罕默德率軍由麥地那重奪麥加，掃除天房內的偶像，並圍繞天房建立清真寺，稱為「<span class="note-bold">禁寺</span>」。從此，麥加成為伊斯蘭教最重要的聖城。</p><p>穆罕默德重奪麥加後，阿拉伯各部落大多皈依伊斯蘭教，整個阿拉伯半島大體上歸於統一。在<span class="note-bold">公元632年</span>，穆罕默德在麥地那逝世。</p></div><div class="bg-white p-4 rounded-xl border-2 border-slate-900 shadow-[4px_4px_0px_rgba(30,41,59,1)]"><ul class="list-disc pl-5 text-xs md:text-sm space-y-2 font-bold text-slate-800"><li><span class="lang-en">Under the efforts of Islamic rulers, the <span class="note-bold">Koran</span> was later complied. It is one of the important religious texts of Islam. The Arabic word koran means <span class="note-bold">'recite'</span>.</span><span class="lang-zh font-bold">在伊斯蘭統治者的努力下，《<span class="note-bold">古蘭經</span>》編纂成冊，作為伊斯蘭教重要的經典。「古蘭」在阿拉伯文中， 意為「<span class="note-bold">誦讀</span>」。</span></li><li><span class="lang-en">The <span class="note-bold">Hadith</span>, which recorded Muhammad's sayings and teachings, served as the basis of behaviour among Muslims.</span><span class="lang-zh font-bold">另外，「<span class="note-bold">聖訓</span>」記載了穆罕默德的言行，是穆斯林言行舉止的依據。</span></li></ul></div></div>
+                </div>
+                <!-- Part 3 -->
+                <div class="part-block p-5 bg-rose-50 border-3 border-slate-900 rounded-2xl space-y-4" data-part-id="topic3_part3">
+                    <div class="flex justify-between items-start flex-wrap gap-2"><span class="bg-rose-200 text-rose-950 font-black text-xs px-3 py-1 rounded-full uppercase border-2 border-slate-900">Part 3: Basic Islamic Teachings / 伊斯蘭教基本教義詳解</span><div class="flex gap-2"><button class="speak-toggle-btn cartoon-btn bg-white text-xs font-black px-3 py-1 rounded-lg" data-target="topic3_part3" data-lang="en-US">🔊 English (Read/Stop)</button><button class="speak-toggle-btn cartoon-btn bg-white text-xs font-black px-3 py-1 rounded-lg" data-target="topic3_part3" data-lang="zh-HK">🔊 粵語 (朗讀/停止)</button></div></div>
+                    <div id="topic3-part3-block" class="mt-4 space-y-6"><div class="bg-white p-4 rounded-xl border-2 border-slate-900 shadow-sm"><h4 class="font-extrabold text-slate-900 text-sm mb-2">📜 The "Six Articles of Faith" / 伊斯蘭教的「六信」：</h4><ul class="list-disc pl-5 text-xs md:text-sm space-y-3 font-bold text-slate-700"><li><span class="lang-en"><span class="note-bold">Believe in Allah</span>: Allah is the only highest creator. He knows about everything. There is no other god but Allah.</span><span class="lang-zh font-bold"><span class="note-bold">信真主</span>：阿拉是至高無上、獨一無二、全知全能的造物主。阿拉之外沒有別的神。</span></li><li><span class="lang-en"><span class="note-bold">Believe in angels</span>: Allah created the angels to give people messages and teachings from Allah.</span><span class="lang-zh font-bold"><span class="note-bold">信天使</span>：天使由阿拉創造，負責向人類傳達阿拉的啟示。</span></li><li><span class="lang-en"><span class="note-bold">Believe in religious texts</span>: Muslims must follow the teachings from the Koran and other religious texts.</span><span class="lang-zh font-bold"><span class="note-bold">信經典</span>：穆斯林必須遵從《古蘭經》及其他經典的教誨。</span></li><li><span class="lang-en"><span class="note-bold">Believe in prophets</span>: Allah sent Muhammad to this world. Muhammad is the greatest and the last prophet.</span><span class="lang-zh font-bold"><span class="note-bold">信先知</span>：穆罕默德是阿拉所派遣最偉大和最後一位先知。</span></li><li><span class="lang-en"><span class="note-bold">Believe in the Judgment Day</span>: When the end of the world comes, Allah will revive all the dead and judge them. Good people will go to heaven, and bad people will go to hell.</span><span class="lang-zh font-bold"><span class="note-bold">信末日</span>：末日來臨時，阿拉會復活所有死者並對他們進行審判。善人會進入天堂，惡人會被打入地獄。</span></li><li><span class="lang-en"><span class="note-bold">Believe in predestination</span>: All deeds of human beings are predestined by the will of Allah.</span><span class="lang-zh font-bold"><span class="note-bold">信前定</span>：人類所有的行為，都是根據阿拉旨意早已預定。</span></li></ul></div><div class="bg-white p-4 rounded-xl border-2 border-slate-900 shadow-sm"><h4 class="font-extrabold text-slate-900 text-sm mb-2">🖐️ The "Five Pillars of Islam" / 伊斯蘭教的「五功」：</h4><ul class="list-disc pl-5 text-xs md:text-sm space-y-3 font-bold text-slate-700"><li><span class="lang-en"><span class="note-bold">Shahada</span>: Declare faith towards the truth that Allah is the real god and Muhammad is the messenger of Allah.</span><span class="lang-zh font-bold"><span class="note-bold">唸功</span>：宣示自己堅信阿拉是真神，穆罕默德則是阿拉的信使。</span></li><li><span class="lang-en"><span class="note-bold">Salah</span>: Five daily prayers, kneeling and worshipping towards the direction of Mecca.</span><span class="lang-zh font-bold"><span class="note-bold">拜功</span>：每天祈禱五次，而且須向着麥加的方向跪拜。</span></li><li><span class="lang-en"><span class="note-bold">Sawm</span>: Fasting for a month every year (in the ninth month of Islamic calendar). Muslims should not eat or drink from dawn to sunset.</span><span class="lang-zh font-bold"><span class="note-bold">齋功</span>：每年的齋戒月 (伊斯蘭曆的9月)，不能在破曉至日落飲食。</span></li><li><span class="lang-en"><span class="note-bold">Zakat</span>: Muslims with excess wealth, clothes and food should help the needy and the poor.</span><span class="lang-zh font-bold"><span class="note-bold">課功</span>：凡有盈餘財富、衣服、食物等，必須贈予有需要的人或貧民。</span></li><li><span class="lang-en"><span class="note-bold">Hajj</span>: Pilgrimage to Mecca at least once in life time when personal finance and health permit.</span><span class="lang-zh font-bold"><span class="note-bold">朝功</span>：在經濟及健康許可下，一生至少往麥加朝聖一次。</span></li></ul></div><div class="bg-red-100 p-4 rounded-xl border-2 border-slate-900 font-bold"><h4 class="font-extrabold text-red-950 text-sm mb-2">⚠️ Prohibitions & Modesty Codes / 日常生活與服飾禁忌：</h4><div class="text-xs md:text-sm text-red-900 space-y-2"><p class="lang-en">Besides the 'Six Articles of Faith and Five Pillars of Islam', Muslims must not eat <span class="note-bold">pork</span> and all unclean food, drink <span class="note-bold">wine</span>, <span class="note-bold">gamble</span> and practise <span class="note-bold">usury</span>. Adult Muslim women should dress modestly in the presence of unrelated men, wearing a <span class="note-bold">headscarf</span> and a <span class="note-bold">robe</span> to cover their hair, neck, and most parts of their body.</p><p class="lang-zh font-bold">穆斯林不能吃<span class="note-bold">豬肉</span>和一切不潔淨的食物，禁止<span class="note-bold">飲酒</span>、<span class="note-bold">賭博</span>、放<span class="note-bold">高利貸</span>等。成年穆斯林女性在非親屬男性面前應穿著得體，須穿戴<span class="note-bold">頭巾</span>、<span class="note-bold">罩袍</span>，遮蔽頭髮、頸部與身體大部分部位。</p></div></div></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============================== TAB 2: RECITATION TOOL ============================== -->
+        <section id="tab-recitation-content" class="hidden space-y-6">
+            <div class="cartoon-card p-4 md:p-6">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b-4 border-slate-900 pb-4 mb-6"><div><h2 class="text-2xl font-black text-slate-900 flex items-center gap-2"><span>🧠</span> Active Recall 記憶挖空背誦神器</h2><p class="text-xs text-slate-500 font-bold mt-1">Tap highlighted cards to learn visually first, then use active recall masks! 點選卡片圖文學習，再使用遮罩訓練背誦！</p></div><div class="flex gap-2"><button id="sel-rec1" onclick="loadRecitation('recite1')" class="cartoon-btn bg-teal-300 px-4 py-2 rounded-xl text-xs font-black">★ 背誦一 (Recite 1)</button><button id="sel-rec2" onclick="loadRecitation('recite2')" class="cartoon-btn bg-white px-4 py-2 rounded-xl text-xs font-bold">★ 背誦二 (Recite 2)</button></div></div>
+
+                <!-- VISUAL LEARNING AID 增加朗读按钮 -->
+                <div id="visual-learning-aid" class="mb-6 p-4 bg-amber-50 border-3 border-slate-900 rounded-2xl">
+                    <div class="flex justify-between items-center flex-wrap gap-2 mb-2"><h4 class="font-black text-slate-900 text-sm">🖼️ Visual Learning Aid / 右腦視覺化輔助學習卡：</h4><div class="flex gap-2"><button class="speak-toggle-btn cartoon-btn bg-white text-xs font-black px-3 py-1 rounded-lg" data-target="visual-aid-content" data-lang="en-US">🔊 English (Read/Stop)</button><button class="speak-toggle-btn cartoon-btn bg-white text-xs font-black px-3 py-1 rounded-lg" data-target="visual-aid-content" data-lang="zh-HK">🔊 粵語 (朗讀/停止)</button></div></div>
+                    <div id="visual-aid-content"></div>
+                </div>
+
+                <div class="bg-indigo-50 border-3 border-slate-900 p-4 rounded-2xl flex flex-wrap items-center justify-between gap-4 mb-6"><div class="flex items-center gap-2"><span class="text-xs font-black text-indigo-950 uppercase">語言模式 Switch Lang:</span><div class="flex bg-white border-2 border-slate-900 rounded-lg p-0.5"><button onclick="setRecitationDisplay('bilingual')" id="sublang-bilingual" class="text-xs font-bold px-3 py-1 rounded bg-indigo-100 text-indigo-800 border border-slate-900">中英對照</button><button onclick="setRecitationDisplay('zh')" id="sublang-zh" class="text-xs font-bold px-3 py-1 text-slate-600">中文版</button><button onclick="setRecitationDisplay('en')" id="sublang-en" class="text-xs font-bold px-3 py-1 text-slate-600">English</button></div></div><div class="flex gap-2"><button onclick="toggleMasks(true)" class="cartoon-btn bg-indigo-500 hover:bg-indigo-600 text-white text-xs font-bold px-3 py-1.5 rounded-lg">全部遮蓋 Blur All</button><button onclick="toggleMasks(false)" class="cartoon-btn bg-white hover:bg-slate-50 text-slate-900 text-xs font-bold px-3 py-1.5 rounded-lg">一鍵顯露 Reveal All</button></div></div>
+
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div id="board-en" class="bg-slate-50 border-3 border-slate-900 p-5 rounded-2xl"><div class="flex justify-between items-center border-b pb-2 mb-3"><span class="text-xs font-black text-slate-400">English Recitation Board</span><button class="speak-toggle-btn cartoon-btn text-[10px] bg-indigo-200 border-2 border-slate-900 px-2 py-0.5 rounded font-black" data-target="rec-box-en" data-lang="en-US">🔊 English (Read/Stop)</button></div><div id="rec-box-en" class="text-sm text-slate-700 leading-relaxed space-y-4 font-bold"></div></div>
+                    <div id="board-zh" class="bg-slate-50 border-3 border-slate-900 p-5 rounded-2xl"><div class="flex justify-between items-center border-b pb-2 mb-3"><span class="text-xs font-black text-slate-400">中文背誦面板</span><button class="speak-toggle-btn cartoon-btn text-[10px] bg-indigo-200 border-2 border-slate-900 px-2 py-0.5 rounded font-black" data-target="rec-box-zh" data-lang="zh-HK">🔊 粵語 (朗讀/停止)</button></div><div id="rec-box-zh" class="text-sm text-slate-700 leading-relaxed space-y-4 font-bold"></div></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============================== TAB 3: QUIZ ROOM (完整保留原始所有题目与逻辑) ============================== -->
+        <section id="tab-quiz-content" class="hidden max-w-3xl mx-auto space-y-6">
+            <div class="cartoon-card p-6 bg-[#fcf9f2]">
+                <div class="flex justify-between items-center border-b-4 border-slate-900 pb-4 mb-6"><div><h2 class="text-2xl font-black text-slate-900">🎰 課堂智能歷史自測擂台 / Revision Quiz</h2><p class="text-xs text-slate-500 font-bold mt-1">Practice unlimited questions! Tap Refresh to load new questions. 內置詳盡答案解析！</p></div><button onclick="loadRandomQuiz()" class="cartoon-btn bg-[#fcd34d] hover:bg-[#fbbf24] text-slate-900 font-black text-xs px-4 py-2.5 rounded-xl flex items-center gap-1.5">🎰 刷新題目 / Refresh</button></div>
+                <div id="quiz-result-banner" class="bg-indigo-100 border-3 border-slate-900 p-5 rounded-2xl text-center font-black text-indigo-950 mb-6 hidden"></div>
+                <div id="quiz-questions-holder" class="space-y-6"></div>
+                <div class="border-t-4 border-slate-900 pt-6 mt-6 flex justify-between items-center"><button onclick="loadRandomQuiz()" class="text-xs text-slate-500 font-bold hover:text-slate-900">重新重置 Reset</button><button onclick="checkQuizAnswers()" class="cartoon-btn bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold px-6 py-2.5 rounded-xl text-sm">提交答案 Submit</button></div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="max-w-6xl w-full mx-auto mt-12 mb-6 text-center text-xs text-slate-500 font-bold border-t-2 border-slate-300 pt-4"><p>St. Joan of Arc Secondary School • S1 History Study Assistant</p><p class="text-[10px] text-slate-400 mt-1">專為中一同學設計的多元視覺雙語溫習助理工具 (Super Learners Revision Companion)</p></footer>
+
+    <script>
+        // ======================= 朗读核心: 香港粤语 + toggle 控制 =======================
+        let activeUtterances = new Map(); // key: 唯一标识, value: { utterance }
+        let cachedVoices = [];
+        function getBestVoice(langCode) {
+            if (!cachedVoices.length) cachedVoices = window.speechSynthesis.getVoices();
+            const isCantonese = (langCode === 'zh-HK' || langCode === 'zh-TW');
+            if (isCantonese) {
+                let preferred = cachedVoices.find(v => (v.lang === 'zh-HK' || v.lang === 'yue') && /tingting|sin-ji|google|hong kong/i.test(v.name));
+                if (preferred) return preferred;
+                let anyZhHK = cachedVoices.find(v => v.lang === 'zh-HK');
+                if (anyZhHK) return anyZhHK;
+                let fallback = cachedVoices.find(v => v.lang.startsWith('zh'));
+                if (fallback) return fallback;
+            } else {
+                let preferred = cachedVoices.find(v => /google uk female|samantha|microsoft (jenny|zira)|google us english/i.test(v.name) && v.lang.startsWith('en'));
+                if (preferred) return preferred;
+                let anyEn = cachedVoices.find(v => v.lang.startsWith('en'));
+                if (anyEn) return anyEn;
+            }
+            return null;
+        }
+        function extractTextFromBlock(element, langCode) {
+            if (!element) return '';
+            const clone = element.cloneNode(true);
+            clone.querySelectorAll('button, .speak-toggle-btn, .cartoon-btn, .mindmap-node').forEach(btn => btn.remove());
+            const isChinese = (langCode === 'zh-HK');
+            const selector = isChinese ? '.lang-zh' : '.lang-en';
+            const langElems = clone.querySelectorAll(selector);
+            let text = '';
+            if (langElems.length) langElems.forEach(el => { text += (el.innerText || el.textContent) + ' '; });
+            else text = clone.innerText || clone.textContent;
+            return text.trim().replace(/\s+/g, ' ').substring(0, 3000);
+        }
+        function stopSpeaking(targetId) {
+            if (activeUtterances.has(targetId)) {
+                window.speechSynthesis.cancel();
+                activeUtterances.delete(targetId);
+            }
+        }
+        function startSpeaking(blockElement, langCode, targetId) {
+            stopSpeaking(targetId);
+            const text = extractTextFromBlock(blockElement, langCode);
+            if (!text) return;
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = langCode;
+            utterance.rate = 0.9;
+            utterance.pitch = 1.05;
+            const bestVoice = getBestVoice(langCode);
+            if (bestVoice) utterance.voice = bestVoice;
+            utterance.onend = () => { activeUtterances.delete(targetId); };
+            utterance.onerror = () => { activeUtterances.delete(targetId); };
+            activeUtterances.set(targetId, { utterance });
+            window.speechSynthesis.speak(utterance);
+        }
+        function bindSpeakToggleButtons() {
+            document.querySelectorAll('.speak-toggle-btn').forEach(btn => {
+                if (btn.dataset.listenerAdded) return;
+                const targetSelector = btn.getAttribute('data-target');
+                const lang = btn.getAttribute('data-lang');
+                if (!targetSelector) return;
+                let targetElement = document.getElementById(targetSelector) || document.querySelector(`.part-block[data-part-id="${targetSelector}"]`) || document.querySelector(`#${targetSelector}`);
+                if (!targetElement) return;
+                const uniqueId = `${targetSelector}_${lang}`;
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    if (activeUtterances.has(uniqueId)) {
+                        // Clicking the same button again → stop it
+                        stopSpeaking(uniqueId);
+                        btn.classList.remove('speaking');
+                    } else {
+                        // Stop ALL currently playing speech first (any target, any language)
+                        window.speechSynthesis.cancel();
+                        activeUtterances.clear();
+                        // Remove speaking highlight from ALL buttons
+                        document.querySelectorAll('.speak-toggle-btn.speaking').forEach(b => b.classList.remove('speaking'));
+                        // Now start the requested one
+                        startSpeaking(targetElement, lang, uniqueId);
+                        btn.classList.add('speaking');
+                        const checkInterval = setInterval(() => {
+                            if (!activeUtterances.has(uniqueId)) {
+                                btn.classList.remove('speaking');
+                                clearInterval(checkInterval);
+                            }
+                        }, 200);
+                    }
+                });
+                btn.dataset.listenerAdded = 'true';
+            });
+        }
+
+        // 保留原始全局函数，同样改为 toggle 风格
+        window.globalSpeak = function(containerId, langCode) {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+            const uniqueId = `global_${containerId}_${langCode}`;
+            if (activeUtterances.has(uniqueId)) stopSpeaking(uniqueId);
+            else startSpeaking(container, langCode, uniqueId);
+        };
+        window.readDashboardText = function(langCode) {
+            const title = document.getElementById('dash-title').innerText;
+            const desc = document.getElementById('dash-body').innerText;
+            const fakeDiv = document.createElement('div');
+            fakeDiv.innerHTML = `<span class="lang-en">${title} ${desc}</span><span class="lang-zh">${title} ${desc}</span>`;
+            const uniqueId = `dashboard_${langCode}`;
+            if (activeUtterances.has(uniqueId)) stopSpeaking(uniqueId);
+            else startSpeaking(fakeDiv, langCode, uniqueId);
+        };
+        window.handleMapClick = function(nodeId, title, desc) {
+            document.getElementById('dash-title').innerText = title;
+            document.getElementById('dash-body').innerText = desc;
+            const fakeDiv = document.createElement('div');
+            fakeDiv.innerHTML = `<span class="lang-en">${title}. ${desc}</span><span class="lang-zh">${title}。${desc}</span>`;
+            const lang = (typeof globalLang !== 'undefined' && globalLang === 'en') ? 'en-US' : 'zh-HK';
+            const uniqueId = `map_${nodeId}`;
+            if (activeUtterances.has(uniqueId)) stopSpeaking(uniqueId);
+            else startSpeaking(fakeDiv, lang, uniqueId);
+        };
+
+        // 原有语言切换、tab切换、休息计时器、背诵模块、挑战擂台完整保留（以下代码与原始文件完全一致，仅增加 bindSpeakToggleButtons 调用）
+        let globalLang = 'bilingual';
+        function setLanguageMode(mode) {
+            globalLang = mode;
+            document.body.classList.remove('show-bilingual', 'show-zh-only', 'show-en-only');
+            if (mode === 'bilingual') document.body.classList.add('show-bilingual');
+            else if (mode === 'zh') document.body.classList.add('show-zh-only');
+            else document.body.classList.add('show-en-only');
+            ['bilingual','zh','en'].forEach(l => { let btn = document.getElementById(`lang-btn-${l}`); if(btn) btn.className = (l===mode)?"text-xs font-black px-3 py-2 rounded-xl bg-white border-2 border-slate-900":"text-xs font-black px-3 py-2 rounded-xl text-slate-600"; });
+        }
+        window.setLanguageMode = setLanguageMode;
+
+        function switchTab(tabId) {
+            document.getElementById('tab-study-content').classList.add('hidden');
+            document.getElementById('tab-recitation-content').classList.add('hidden');
+            document.getElementById('tab-quiz-content').classList.add('hidden');
+            document.getElementById('tab-study-btn').className = "cartoon-btn px-6 py-3.5 rounded-2xl font-bold text-slate-600 bg-white";
+            document.getElementById('tab-recitation-btn').className = "cartoon-btn px-6 py-3.5 rounded-2xl font-bold text-slate-600 bg-white";
+            document.getElementById('tab-quiz-btn').className = "cartoon-btn px-6 py-3.5 rounded-2xl font-bold text-slate-600 bg-white";
+            document.getElementById(`tab-${tabId}-content`).classList.remove('hidden');
+            document.getElementById(`tab-${tabId}-btn`).className = "active-tab-btn cartoon-btn px-6 py-3.5 rounded-2xl font-black text-white bg-indigo-600";
+            if (tabId === 'quiz') loadRandomQuiz();
+            setTimeout(bindSpeakToggleButtons, 50);
+        }
+        window.switchTab = switchTab;
+
+        let breakTimer, breakTimeLeft = 30, isTimerActive = false;
+        window.toggleBreakTimer = function() {
+            const btn = document.getElementById('breakTimerBtn');
+            const display = document.getElementById('timerDisplay');
+            if (isTimerActive) { clearInterval(breakTimer); btn.innerText = "Resume"; isTimerActive = false; }
+            else { display.classList.remove('hidden'); isTimerActive = true; btn.innerText = "Pause"; breakTimer = setInterval(() => { breakTimeLeft--; display.innerText = `${breakTimeLeft}s`; if (breakTimeLeft <= 0) { clearInterval(breakTimer); display.innerText = "Done! 🎉"; btn.innerText = "Start"; breakTimeLeft = 30; isTimerActive = false; const msg = new SpeechSynthesisUtterance("Break over! Let's study again."); msg.lang = 'en-US'; window.speechSynthesis.speak(msg); } }, 1000); }
+        };
+
+        // 背诵数据（原始完整）
+        const recitationData = {
+            recite1: { en:["[All the four major groups] worship traditional gods and spirits. [Both the Cantonese and the Hakkas] worship traditional gods like [Kwun Yam and Kwan Tai], as well as [their ancestors]. However, [the Cantonese] worship more gods and spirits such as [the Jade Emperor, Wong Tai Sin], etc. [The Fuklos and the boat people] worship gods and spirits [related to sea]. For example, [the Fuklos] worship [Tin Hau and Pak Tai]. Meanwhile, [the boat people] worship [Tin Hau, Hung Shing, and Chu Tai Sin]. Both of these two major groups celebrate the [Tin Hau Festival].","In terms of customs, [the Cantonese, the Hakkas, and the Fuklos] hold [the Jiao Festival] regularly to pray for [peace]. The four major group have different religious rituals. [The Cantonese] value [ancestral worship]. They worship their ancestor in [the ancestral halls] regularly. Aside from practicing ancestral worship, [the Hakkas] also keep traditional customs such as [lantern lighting ceremony, big bowl feast] during festivals, etc. In the seventh lunar month every year, [the Fuklos] living in the urban area holds [the Yu Lan Festival]. On the 14th night of the seventh lunar month, [the boat people] burn [paper offerings] near [water] to pacify [the water ghosts]."], zh:["四大民系均會拜祭傳統神靈，並慶祝農曆新年、中秋節和冬至等傳統節日。[廣府人和客家人]都會拜祭[觀音、關帝]等傳統神靈，亦有拜祭[祖先]的傳統；但[廣府人]拜祭更多的神靈，如崇拜[玉皇大帝、黃大仙]等。至於[福佬人和水上人]則信奉[與水有關]的神靈，例如[福佬人]信奉[天后和北帝]，[水上人]則信奉[天后、洪聖、龍母和朱大仙]等；兩個民系均會慶祝天后誕。","在宗教活動方面，[廣府人、客家人和福佬人]都會定期舉行[太平清醮]，以祈求[平安]。而各民系亦各有不同的宗教活動。[廣府人]重視[祭祖]，定期在[宗祠]祭祖。[客家人]也有祭祖的習俗，同時保留[點燈、舉辦盆菜宴]等傳統習俗。而每年曆七月，居住在市區的[福佬人]會舉行大型的[盂蘭勝會]，而[水上人]則會在農曆七月十四晚，在[水邊]燒[紙錢]拜祭[水鬼]。"], visualHtml:`<div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-center"><div class="p-3 bg-red-100 border-2 border-slate-900 rounded-xl"><span class="text-2xl">🏡</span><h5 class="font-extrabold text-xs text-red-950 mt-1">廣府人 (Cantonese)</h5><p class="text-[10px] text-slate-600 mt-1">Worship Kwun Yam, Kwan Tai, Ancestors, Jade Emperor, Wong Tai Sin. Hold Jiao Festival regularly, Ancestral halls.</p></div><div class="p-3 bg-green-100 border-2 border-slate-900 rounded-xl"><span class="text-2xl">🏮</span><h5 class="font-extrabold text-xs text-green-950 mt-1">客家人 (Hakkas)</h5><p class="text-[10px] text-slate-600 mt-1">Worship Kwun Yam, Kwan Tai, Ancestors. Lantern lighting, big bowl feast.</p></div><div class="p-3 bg-blue-100 border-2 border-slate-900 rounded-xl"><span class="text-2xl">🌊</span><h5 class="font-extrabold text-xs text-blue-950 mt-1">福佬人 (Fuklos)</h5><p class="text-[10px] text-slate-600 mt-1">Worship sea gods: Tin Hau, Pak Tai. Jiao Festival, Yu Lan Festival in urban area.</p></div><div class="p-3 bg-orange-100 border-2 border-slate-900 rounded-xl"><span class="text-2xl">🚣</span><h5 class="font-extrabold text-xs text-orange-950 mt-1">水上人 (Boat People)</h5><p class="text-[10px] text-slate-600 mt-1">Worship sea gods: Tin Hau, Hung Shing, Lung Mo, Chu Tai Sin. July 14 burn paper near water for water ghosts.</p></div></div>` },
+            recite2: { en:["After the founding of Islam, a unique Islamic civilisation was gradually formed in the Medieval Times.","[From the aspect of writing system], [The Koran] was written in the [Arabic alphabet]. Every Muslim considered the Koran as a [textbook] and learnt Arabic from it. With the widespread of Islam, the [Arabic alphabet] soon became one of the mostly used writing systems, just [second to the Roman alphabet].","[From the aspect of literature], there were many famous Arabian literature works in the Medieval Times. Among these literatures, [The One Thousand and One Nights], a collection of folk tales in [AD 10th century], was the most outstanding. [The One Thousand and One Nights] included all kinds of myths, legends, palace stories, and [sea adventures]. The plots were fascinating and the characters were lively. Among the stories, '[Aladdin] and the Magic Lamp', '[Sinbad] Sailing', and '[Alibaba] and the Forty Thieves' were well known to everyone. They have [deep influence] on the world literature."], zh:["伊斯蘭教創立後，獨特的伊斯蘭文明在中古時代逐漸形成。","在[書寫系統方面]，伊斯蘭教的經典[《古蘭經》]，是由使用[阿拉伯字母]的阿拉伯文寫成。每個穆斯林都視《古蘭經》為[教科書]，把它當作是學習阿拉伯文的[讀本]。隨着伊斯蘭教的廣泛傳播，[阿拉伯字母]逐漸成為世界上[應用最廣泛]的書寫系統之一，僅[次於羅馬字母]。","在[文學方面]，中古時代的阿拉伯出產了許多著名的文學作品，其中以成形於公元[10世紀]的民間故事集[《一千零一夜》]最為傑出。《一千零一夜》包括各種[神話傳說、宮廷趣聞、航海歷險]等，情節曲折離奇，人物形象生動，當中[「阿拉丁和神燈」、「辛巴達的航行」、「阿里巴巴和四十大盜」]等故事，經已家傳戶曉，對[世界文學]有深遠的影響。"], visualHtml:`<div class="flex flex-col md:flex-row justify-around items-center gap-4 py-2"><div class="p-3 bg-purple-100 border-2 border-slate-900 rounded-xl text-center w-full max-w-[280px]"><span class="text-xl">🖋️ 文字傳播 (Writing)</span><p class="text-xs text-slate-700 mt-1 font-bold">Koran in Arabic Alphabet -> Essential textbook for Muslims -> 2nd most widely used writing system in history.</p></div><span class="text-2xl hidden md:inline">➡️</span><div class="p-3 bg-cyan-100 border-2 border-slate-900 rounded-xl text-center w-full max-w-[280px]"><span class="text-xl">📚 文學輝煌 (Literature)</span><p class="text-xs text-slate-700 mt-1 font-bold">The One Thousand and One Nights (10th century) -> myths, legends, sea adventures -> Aladdin, Sinbad, Alibaba.</p></div></div>` }
+        };
+        let activeReciteId = 'recite1';
+        function loadRecitation(id) {
+            activeReciteId = id;
+            const btn1 = document.getElementById('sel-rec1'), btn2 = document.getElementById('sel-rec2');
+            if (id === 'recite1') { btn1.className = "cartoon-btn bg-teal-300 px-4 py-2 rounded-xl text-xs font-black"; btn2.className = "cartoon-btn bg-white px-4 py-2 rounded-xl text-xs font-bold"; }
+            else { btn1.className = "cartoon-btn bg-white px-4 py-2 rounded-xl text-xs font-bold"; btn2.className = "cartoon-btn bg-emerald-300 px-4 py-2 rounded-xl text-xs font-black"; }
+            document.getElementById('visual-aid-content').innerHTML = recitationData[id].visualHtml;
+            renderRecitationText();
+            bindSpeakToggleButtons();
+        }
+        function convertBracketsToMaskHTML(p) { let res="", inside=false, cur=""; for(let ch of p){ if(ch==='['){ inside=true; cur=""; }else if(ch===']'){ inside=false; res+=`<span class="mask-element cursor-pointer select-none font-bold" onclick="this.classList.toggle('revealed')">${cur}</span>`; }else{ if(inside) cur+=ch; else res+=ch; } } return res; }
+        function renderRecitationText() { const data = recitationData[activeReciteId]; document.getElementById('rec-box-en').innerHTML = data.en.map(p => `<p class="mb-4">${convertBracketsToMaskHTML(p)}</p>`).join(''); document.getElementById('rec-box-zh').innerHTML = data.zh.map(p => `<p class="mb-4">${convertBracketsToMaskHTML(p)}</p>`).join(''); }
+        function setRecitationDisplay(lang) { const enDiv = document.getElementById('board-en'), zhDiv = document.getElementById('board-zh'); if (lang === 'bilingual') { enDiv.classList.remove('hidden'); zhDiv.classList.remove('hidden'); } else if (lang === 'en') { enDiv.classList.remove('hidden'); zhDiv.classList.add('hidden'); } else { enDiv.classList.add('hidden'); zhDiv.classList.remove('hidden'); } ['bilingual','zh','en'].forEach(l => { let btn = document.getElementById(`sublang-${l}`); if(btn) btn.className = (l===lang)?"text-xs font-bold px-3 py-1 rounded bg-indigo-100 text-indigo-800 border border-slate-900":"text-xs font-bold px-3 py-1 text-slate-600"; }); }
+        function toggleMasks(blurAll) { document.querySelectorAll('.mask-element').forEach(span => { if(blurAll) span.classList.remove('revealed'); else span.classList.add('revealed'); }); }
+        window.loadRecitation = loadRecitation; window.setRecitationDisplay = setRecitationDisplay; window.toggleMasks = toggleMasks;
+
+        // =============== 挑战擂台完整题库 (原始9道题，完整保留) ===============
+        const quizPool = [
+            { type:'MC', id:1, q_en:"Since 2001, the day of the Cheung Chau Jiao Festival has been fixed on which public holiday?", q_zh:"自2001年起，長洲太平清醮的舉辦正日被固定於哪一個公眾假期？", choices:[{key:'A',text_en:"Mid-Autumn Festival (中秋節)",text_zh:"中秋節假期"},{key:'B',text_en:"Birthday of the Buddha (佛誕)",text_zh:"佛誕公眾假期"},{key:'C',text_en:"National Day (國慶節)",text_zh:"國慶節假期"},{key:'D',text_en:"Tuen Ng Festival (端午節)",text_zh:"端午節假期"}], correct:'B', explain_en:"Since 2001, the Cheung Chau Jiao Festival has been fixed on the 8th day of the fourth lunar month, which is the Birthday of the Buddha holiday.", explain_zh:"自2001年起，長洲太平清醮固定在農曆四月初八舉行。這一天正好是佛誕公眾假期，自此為固定的假日。" },
+            { type:'MC', id:2, q_en:"Under which category of Intangible Cultural Heritage (ICH) does the Cheung Chau Jiao Festival belong?", q_zh:"長洲太平清醮屬於無形非物質文化遺產中的哪一個範疇？", choices:[{key:'A',text_en:"traditional craftsmanship (傳統手工藝)",text_zh:"傳統手工藝"},{key:'B',text_en:"social practices, rituals and festive events (社會實踐、儀式、節慶活動)",text_zh:"社會實踐、儀式和節慶活動"},{key:'C',text_en:"performing arts (表演藝術)",text_zh:"表演藝術"},{key:'D',text_en:"oral traditions and expressions (口頭傳統和表現形式)",text_zh:"口頭傳統和表現形式"}], correct:'B', explain_en:"Traditional festivals and cultural community events belong to the 'social practices, rituals and festive events' domain.", explain_zh:"香港的四大傳統特色節慶（如長洲打醮、舞火龍等）都屬於「社會實踐、儀式和節慶活動」範疇。" },
+            { type:'MC', id:3, q_en:"Which group of people built ancestral halls and put great emphasis on ancestral worship?", q_zh:"早期香港的哪一個民系最為重視祭祖，並定期在宗祠舉行祭祀？", choices:[{key:'A',text_en:"The boat people (水上人)",text_zh:"水上人"},{key:'B',text_en:"The Fuklos (福佬人)",text_zh:"福佬人"},{key:'C',text_en:"The Cantonese (廣府人)",text_zh:"廣府人（本地人）"},{key:'D',text_en:"The Hakkas (客家人)",text_zh:"客家人"}], correct:'C', explain_en:"The Cantonese migrated early to Hong Kong, settled in fertile flatlands, and valued ancestral worship within grand ancestral halls.", explain_zh:"廣府人（本地人）南遷定居歷史悠久（宋朝起），他們極之重視家族祭祀，因此定期在宗祠內祭祖。" },
+            { type:'MC', id:4, q_en:"In AD 630, what did Prophet Muhammad do upon conquering and returning to Mecca?", q_zh:"在公元630年，先知穆罕默德帶兵攻入並重返麥加後，他的核心歷史行動是？", choices:[{key:'A',text_en:"Destroyed all trading markets.",text_zh:"摧毀了所有的集市貿易。"},{key:'B',text_en:"Cleared the idols inside the Forbidden Mosque.",text_zh:"清除了禁寺（Al-Masjid al-Haram）內的所有偶像。"},{key:'C',text_en:"Wrote the Holy scripture Koran by himself.",text_zh:"親自書寫編纂了整本《古蘭經》。"},{key:'D',text_en:"Moved the capital permanently to Medina.",text_zh:"將首都永久遷至麥地那。"}], correct:'B', explain_en:"In AD 630, Muhammad conquered and returned to Mecca, and cleared the idols inside the Forbidden Mosque (Al-Masjid al-Haram).", explain_zh:"公元630年穆罕默德重返麥加，將麥加禁寺內的多神教偶像全部清除，並確立伊斯蘭一神宗教信仰。" },
+            { type:'MC', id:5, q_en:"What does the Arabic word 'Koran' literally translate to?", q_zh:"伊斯蘭教神聖經典《古蘭經》在阿拉伯文中的字面含意是？", choices:[{key:'A',text_en:"To Worship (崇拜)",text_zh:"「崇拜」"},{key:'B',text_en:"To Recite (誦讀)",text_zh:"「誦讀」"},{key:'C',text_en:"To Obey (服從)",text_zh:"「服從」"},{key:'D',text_en:"To Believe (信仰)",text_zh:"「信仰」"}], correct:'B', explain_en:"The word 'Koran' translates literally to 'Recite' (誦讀), reflecting the oral revelations.", explain_zh:"在阿拉伯語中，「古蘭」一詞即是「誦讀」的意思，意在讓信徒定期吟誦真主的啟示。" },
+            { type:'Matching', id:6, q_en:"Match the following historical time eras to Muhammad's life stages:", q_zh:"請配對正確的歷史時間（年份）與穆罕默德生平重要事件：", pairs:[{term:"AD 622 (公元622年)",match:"Fled from Mecca to Medina (聖遷：由麥加遷移至麥地那)"},{term:"AD 630 (公元630年)",match:"Conquered & cleared idols in Forbidden Mosque (大軍攻佔麥加，清空禁寺偶像)"},{term:"AD 10th Century (公元10世紀)",match:"Compilation of One Thousand and One Nights (《一千零一夜》民間故事集形成時期)"},{term:"6th Century AD (公元6世紀末)",match:"Born in the holy city of Mecca (在聖城麥加出生)"}], explain_en:"AD 622 is Hijra (migration), AD 630 is return to Mecca, and AD 10th century marks the formation of Arabian Nights folklore.", explain_zh:"公元622年是聖遷至麥地那的年份；630年是他重返麥加並清除禁寺偶像的年份。10世紀則是《一千零一夜》民間故事集逐漸形成的時期。" },
+            { type:'Matching', id:7, q_en:"Match the core difference elements between Traditional and Modern Bun Scrambling:", q_zh:"請配對傳統搶包山與今日包山嘉年華的昔今特徵對比關係：", pairs:[{term:"Traditional Scrambling (傳統搶包山)",match:"Religious & Ritual, local residents only, real flour buns (祭祀祈福，長洲居民，麵粉製包)"},{term:"Modern Bun Carnival (今日包山嘉年華)",match:"Sports & Competition, qualified territory athletes, plastic imitation buns (競技比賽，全港選手，塑膠仿真包)"}], explain_en:"Traditional scrambling was restricted to local islanders as a religious ritual. Modern carnival is a safe athletic competition using plastic buns.", explain_zh:"昔日打醮是長洲居民為祈福避災而舉辦的宗教活動，用真麵粉包。現今則是全港性的安全體育競賽，使用更衛生環保的仿真塑膠包。" },
+            { type:'QA', id:8, q_en:"Name three surnames belonging to the 'Five Great Clans' of Cantonese in the New Territories:", q_zh:"請寫出新界廣府「五大姓族」中的任意三個姓氏（英文或中文均可）：", correct_keywords:["Tang","Man","Liu","Hau","Pang","鄧","文","廖","侯","彭"], explain_en:"The Five Great Clans in the New Territories are Tang (鄧), Man (文), Liu (廖), Hau (侯), and Pang (彭).", explain_zh:"新界五大姓族分別為：鄧、文、廖、侯、彭。他們都是自宋朝遷入新界的廣府民系。" },
+            { type:'QA', id:9, q_en:"Apart from pork, what beverage is strictly prohibited (haram) in the daily Islamic conduct rules?", q_zh:"在日常日常生活戒律中，除了豬肉外，穆斯林還被嚴格禁止飲用哪一種飲品？", correct_keywords:["alcohol","wine","beer","酒","酒精","飲酒"], explain_en:"Islam strictly prohibits the consumption of alcohol, as well as gambling and taking high-interest loans.", explain_zh:"伊斯蘭教義除了嚴格禁止食用豬肉，也嚴防信徒飲酒，以保持心智清醒。" }
+        ];
+        let loadedQuizList = [], matchingAnswers = {};
+        function shuffleArray(arr) { return arr.sort(() => Math.random() - 0.5); }
+        function loadRandomQuiz() {
+            document.getElementById('quiz-result-banner').classList.add('hidden');
+            let tempPool = JSON.parse(JSON.stringify(quizPool)); shuffleArray(tempPool);
+            loadedQuizList = tempPool.slice(0, 5);
+            renderQuizHub();
+        }
+        function renderQuizHub() {
+            const holder = document.getElementById('quiz-questions-holder');
+            holder.innerHTML = "";
+            matchingAnswers = {};
+            loadedQuizList.forEach((q, idx) => {
+                let div = document.createElement('div');
+                div.className = "p-4 md:p-5 border-3 border-slate-900 rounded-2xl bg-white space-y-4 shadow-sm";
+                let header = `<div class="flex justify-between items-center"><span class="text-xs font-black bg-slate-900 text-white px-3 py-1 rounded-xl">Question ${idx+1} (${q.type})</span><div class="flex gap-1"><button onclick="globalSpeak('q-block-${q.id}', 'zh-HK')" class="text-[10px] bg-slate-200 border border-slate-400 px-2 py-0.5 rounded font-bold">🔊 粵語</button><button onclick="globalSpeak('q-block-${q.id}', 'en-US')" class="text-[10px] bg-slate-200 border border-slate-400 px-2 py-0.5 rounded font-bold">🔊 Read</button></div></div>`;
+                let qText = `<div id="q-block-${q.id}" class="space-y-1"><p class="font-extrabold text-sm md:text-base text-slate-800 lang-en">${q.q_en}</p><p class="font-extrabold text-sm md:text-base text-slate-800 lang-zh hidden">${q.q_zh}</p></div>`;
+                let innerContent = "";
+                if (q.type === 'MC') {
+                    innerContent += `<div class="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-2">`;
+                    q.choices.forEach(choice => {
+                        innerContent += `<button onclick="selectMCAnswer(${q.id}, '${choice.key}')" id="mc-btn-${q.id}-${choice.key}" class="mc-btn-${q.id} text-left text-xs md:text-sm font-bold border-2 border-slate-300 p-3 rounded-xl hover:bg-slate-50 transition-all"><span class="bg-slate-200 px-2 py-0.5 rounded-lg mr-1 border border-slate-900">${choice.key}</span><span class="lang-en">${choice.text_en}</span><span class="lang-zh hidden">${choice.text_zh}</span></button>`;
+                    });
+                    innerContent += `</div><input type="hidden" id="ans-${q.id}" value="">`;
+                } else if (q.type === 'Matching') {
+                    let matchesPool = q.pairs.map(p => p.match);
+                    shuffleArray(matchesPool);
+                    innerContent += `<div class="space-y-3 mt-3">`;
+                    q.pairs.forEach((pair, pIdx) => {
+                        innerContent += `<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3 bg-slate-50 rounded-xl border border-slate-300 text-xs md:text-sm"><span class="font-bold text-slate-700">${pIdx+1}. ${pair.term}</span><select onchange="selectMatching(${q.id}, ${pIdx}, this.value)" class="border-2 border-slate-900 p-1.5 rounded-xl font-black text-slate-900 bg-white"><option value="">-- Match / 配對 --</option>${matchesPool.map(m => `<option value="${m}">${m}</option>`).join('')}</select></div>`;
+                    });
+                    innerContent += `</div>`;
+                } else if (q.type === 'QA') {
+                    innerContent += `<div class="mt-2"><input type="text" id="ans-${q.id}" placeholder="Type key historical terms... / 請在此處鍵入答案關鍵字..." class="w-full border-2 border-slate-900 p-3 rounded-xl text-xs md:text-sm font-bold focus:outline-none focus:ring-4 focus:ring-indigo-300"></div>`;
+                }
+                let explanationBox = `<div id="explain-box-${q.id}" class="mt-4 p-3 bg-emerald-50 border-2 border-emerald-400 rounded-xl hidden text-xs md:text-sm text-emerald-950 font-bold"><span class="text-emerald-700 block mb-1">💡 Answer Explanation / 答案解析:</span><p class="lang-en">${q.explain_en}</p><p class="lang-zh hidden">${q.explain_zh}</p></div>`;
+                div.innerHTML = header + qText + innerContent + explanationBox;
+                holder.appendChild(div);
+            });
+            setLanguageMode(globalLang);
+        }
+        function selectMCAnswer(questionId, choiceKey) {
+            document.getElementById(`ans-${questionId}`).value = choiceKey;
+            document.querySelectorAll(`.mc-btn-${questionId}`).forEach(btn => {
+                if (btn.id === `mc-btn-${questionId}-${choiceKey}`) btn.className = `mc-btn-${questionId} text-left text-xs md:text-sm font-black border-3 border-indigo-600 bg-indigo-50 text-indigo-950 p-3 rounded-xl transition-all`;
+                else btn.className = `mc-btn-${questionId} text-left text-xs md:text-sm font-bold border-2 border-slate-300 bg-white text-slate-700 p-3 rounded-xl transition-all`;
+            });
+        }
+        function selectMatching(questionId, pairIdx, value) { if (!matchingAnswers[questionId]) matchingAnswers[questionId] = {}; matchingAnswers[questionId][pairIdx] = value; }
+        function checkQuizAnswers() {
+            let score = 0, total = loadedQuizList.length, incomplete = false;
+            loadedQuizList.forEach(q => {
+                if (q.type === 'MC') { let ans = document.getElementById(`ans-${q.id}`).value; if (!ans) incomplete = true; if (ans === q.correct) score++; }
+                else if (q.type === 'Matching') { let ansObj = matchingAnswers[q.id] || {}; let correctCount = 0; q.pairs.forEach((pair, idx) => { if (ansObj[idx] === pair.match) correctCount++; }); if (correctCount === q.pairs.length) score++; else if (Object.keys(ansObj).length !== q.pairs.length) incomplete = true; }
+                else if (q.type === 'QA') { let text = document.getElementById(`ans-${q.id}`).value.trim().toLowerCase(); if (!text) incomplete = true; let keywordFound = q.correct_keywords.some(kw => text.includes(kw.toLowerCase())); if (keywordFound) score++; }
+            });
+            if (incomplete) { let banner = document.createElement('div'); banner.className = "fixed bottom-5 right-5 z-50 bg-amber-400 text-slate-950 text-xs font-black px-4 py-3 rounded-xl shadow-xl border-3 border-slate-900"; banner.innerHTML = `⚠️ 請先回答所有問題！ (Please answer all questions first!)`; document.body.appendChild(banner); setTimeout(() => banner.remove(), 3000); return; }
+            const banner = document.getElementById('quiz-result-banner'); banner.classList.remove('hidden'); banner.innerHTML = `<p class="text-lg">🎯 測試完成 / Assessment Completed!</p><p class="text-3xl font-black mt-1">Your Score: ${score} / ${total}</p><p class="text-xs text-slate-500 mt-2">${score >= 4 ? '🎉 Excellent job, super historian!' : '💪 Keep studying and try again!'}</p>`;
+            loadedQuizList.forEach(q => { const explainBox = document.getElementById(`explain-box-${q.id}`); if (explainBox) explainBox.classList.remove('hidden'); if (q.type === 'MC') { document.querySelectorAll(`.mc-btn-${q.id}`).forEach(btn => { const letter = btn.id.split('-').pop(); const isCorrect = q.correct === letter; const isUserSelect = document.getElementById(`ans-${q.id}`).value === letter; if (isCorrect) btn.className = `mc-btn-${q.id} text-left text-xs md:text-sm font-black border-3 border-emerald-600 bg-emerald-50 text-emerald-950 p-3 rounded-xl pointer-events-none`; else if (isUserSelect && !isCorrect) btn.className = `mc-btn-${q.id} text-left text-xs md:text-sm font-black border-3 border-rose-600 bg-rose-50 text-rose-950 p-3 rounded-xl pointer-events-none`; else btn.className = `mc-btn-${q.id} text-left text-xs border border-slate-200 bg-slate-50/50 text-slate-400 p-3 rounded-xl pointer-events-none`; }); } });
+            setLanguageMode(globalLang);
+        }
+        window.selectMCAnswer = selectMCAnswer; window.selectMatching = selectMatching; window.checkQuizAnswers = checkQuizAnswers; window.loadRandomQuiz = loadRandomQuiz;
+
+        // 页面初始化
+        window.addEventListener('load', () => {
+            setLanguageMode('bilingual');
+            loadRecitation('recite1');
+            setRecitationDisplay('bilingual');
+            loadRandomQuiz();
+            bindSpeakToggleButtons();
+            if (window.speechSynthesis) window.speechSynthesis.getVoices();
+            setTimeout(bindSpeakToggleButtons, 500);
+        });
+        const observer = new MutationObserver(() => bindSpeakToggleButtons());
+        observer.observe(document.body, { childList: true, subtree: true });
+    </script>
+</body>
+</html>
