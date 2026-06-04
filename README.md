@@ -1,2 +1,2 @@
-# h4rvey626.github.io
+# History_Study.github.io
 S1 History Study Companion
